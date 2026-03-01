@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinterdnd2 import DND_FILES, TkinterDnD
+import subprocess
+import os
 
 class App:
     def __init__(self, root):
@@ -34,9 +36,40 @@ class App:
         self.convert_button.pack(pady=10)
 
     def handle_drop(self, event):
-        self.file_path = event.data # stores file path 
-        self.drop_label.config(text=f"File: {self.file_path}") # changes drop label text to show file name
+        # remove curly braces and extra spaces
+        path = event.data.strip().strip("{}")
 
+        # convert to proper os path
+        self.file_path = os.path.normpath(path)
+
+        # show only filename
+        filename = os.path.basename(self.file_path) 
+        self.drop_label.config(text=f"File: {filename}") # changes drop label text to show file name
+
+    def convert_file(self):
+        if not self.file_path:
+            self.drop_label.config(text="Please drop a file first.")
+            return
+        
+        # Clean file path
+        clean_path = self.file_path.strip("{}")
+
+        output_format = self.selected_format.get()
+        base, _ = os.path.splitext(clean_path)
+        output_file = f"{base}.{output_format}"
+
+        # Call ffmpeg
+        subprocess.run([
+            "ffmpeg",
+            "-y",                   # Overwrite if exists
+            "-i", self.file_path,   # input
+            output_file             # output
+        ])
+
+        self.drop_label.config(text=f"Converted to {output_file}")
+        print(f"successfully converted to {output_file}")
+
+# run app
 if __name__ == "__main__":
     root = TkinterDnD.Tk()
     app = App(root)
