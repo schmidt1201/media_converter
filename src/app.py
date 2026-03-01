@@ -3,16 +3,23 @@ from tkinterdnd2 import DND_FILES, TkinterDnD
 import subprocess
 import os
 
+BG_COLOR = "#0f0f0f"
+PANEL_COLOR = "#1a1a1a"
+ACCENT = "#4f46e5"
+TEXT_COLOR = "#ffffff"
+MUTED = "#aaaaaa"
+
 class App:
     def __init__(self, root):
         # Creates main window -> root
         self.root = root
         self.root.title("Media Converter") # Sets window title
         self.root.geometry("500x300") # Width x Height
+        self.root.configure(bg=BG_COLOR)
         self.file_path = None
 
         # Drop area label 
-        self.drop_label = tk.Label(self.root, text="Drag & drop desired file here.", width=40, height=5, relief="ridge") # adds text, size and border
+        self.drop_label = tk.Label(self.root, text="Drag & drop desired file here.", width=40, height=5, relief="ridge", bg=PANEL_COLOR, fg=MUTED, font=("Segoe UI", 11), highlightbackground="#2a2a2a", highlightthickness=1) # adds text, size and border
         self.drop_label.pack(pady=50)
 
         # Make drop_label accept dropped files
@@ -29,10 +36,25 @@ class App:
             self.selected_format,
             "mp3", "wav", "ogg"
         )
+
+        self.format_menu.config(             
+            bg=PANEL_COLOR,
+            fg=TEXT_COLOR,
+            activebackground=PANEL_COLOR,
+            activeforeground=TEXT_COLOR,
+            highlightthickness=0,
+            font=("Segoe UI", 10)
+        )
+
+        self.format_menu["menu"].config(     
+            bg=PANEL_COLOR,
+            fg=TEXT_COLOR
+        )
+
         self.format_menu.pack(pady=10)
 
         # Add convert button
-        self.convert_button = tk.Button(self.root, text="Convert", command=self.convert_file)        
+        self.convert_button = tk.Button(self.root, text="Convert", command=self.convert_file, bg=ACCENT, fg="white", activebackground="#4338ca", activeforeground="white", relief="flat", font=("Segoe UI", 10, "bold"), padx=20, pady=6)        
         self.convert_button.pack(pady=10)
 
     def handle_drop(self, event):
@@ -44,7 +66,7 @@ class App:
 
         # show only filename
         filename = os.path.basename(self.file_path) 
-        self.drop_label.config(text=f"File: {filename}") # changes drop label text to show file name
+        self.drop_label.config(text=f"File: {filename}", fg=TEXT_COLOR) # changes drop label text to show file name
 
     def convert_file(self):
         if not self.file_path:
