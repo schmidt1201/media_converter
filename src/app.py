@@ -82,7 +82,7 @@ class App:
 
         # Call ffmpeg
         subprocess.run([
-            "ffmpeg",
+            "ffmpeg/bin/ffmpeg.exe",
             "-y",                   # Overwrite if exists
             "-i", self.file_path,   # input
             output_file             # output
