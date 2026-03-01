@@ -28,7 +28,14 @@ class App:
             "mp3", "wav", "ogg"
         )
         self.format_menu.pack(pady=10)
-
+        
+        # Add convert button
+        self.convert_button = tk.Button(
+            self.root
+            text="Convert"
+            command=self.convert_file
+        )
+        self.convert_button.pack(pady=10)
 
     def handle_drop(self, event):
         self.file_path = event.data # stores file path 
