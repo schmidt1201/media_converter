@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinterdnd2 import DND_FILES, TkinterDnD
+import threading
 import subprocess
 import os
 
@@ -85,36 +86,51 @@ class App:
     def handle_drop(self, event):
         # Remove curly braces added by tkinterdnd2 on Windows paths
         path = event.data.strip().strip("{}")
-
         # convert to proper os path
         self.file_path = os.path.normpath(path)
-
         # show only filename
         filename = os.path.basename(self.file_path) 
         self.drop_label.config(text=f"File: {filename}", fg=TEXT_COLOR) # changes drop label text to show file name
 
     def convert_file(self):
         if not self.file_path:
-            self.drop_label.config(text="Please drop a file first.")
+            self.drop_label.config(text="Please drop a file first.") # if clicks button without dropping a file
             return
         
-        # Clean file path
-        clean_path = self.file_path.strip("{}")
+        # Disable button while converting to prevent double-clicks
+        self.convert_button.config(state="disabled", text="Converting...")
+        self.drop_label.config(text="Converting...", fg=MUTED)
 
+        thread = threading.Thread(target=self._run_conversion, daemon=True)
+        thread.start()
+
+    def _run_conversion(self):
         output_format = self.selected_format.get()
-        base, _ = os.path.splitext(clean_path)
+        base, _ = os.path.splitext(self.file_path)
         output_file = f"{base}.{output_format}"
 
-        # Call ffmpeg
-        subprocess.run([
-            "ffmpeg",
-            "-y",                   # Overwrite if exists
-            "-i", self.file_path,   # input
-            output_file             # output
-        ])
+        try:
+            result = subprocess.run(
+                ["ffmpeg", "-y", "-i", self.file_path, output_file],
+                capture_output=True, # supresses terminal noise
+                text=True # stderr/stdout returned as strings
+            )
+            if result.returncode != 0:
+                self.root.after(0, lambda: self._on_failure("Conversion failed"))
+            else:
+                filename = os.path.basename(output_file)
+                self.root.after(0, lambda: self._on_success(filename))
+        except FileNotFoundError:
+            # ffmpeg is not installed or not on path
+            self.root.after(0, lambda: self._on_failure("ffmpeg not found. is it installed/on PATH?"))
+    
+    def _on_success(self, filename):
+        self.drop_label.config(text=f"✅ Saved: {filename}", fg=TEXT_COLOR)
+        self.convert_button.config(state="normal", text="Convert")
 
-        self.drop_label.config(text=f"Converted to {output_file}")
-        print(f"successfully converted to {output_file}")
+    def _on_failure(self, message):
+        self.drop_label.config(text=f"❌ {message}", fg="#f87171")
+        self.convert_button.config(state="normal", text="Convert")
 
 # run app
 if __name__ == "__main__":
