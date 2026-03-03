@@ -9,6 +9,8 @@ ACCENT = "#4f46e5"
 TEXT_COLOR = "#ffffff"
 MUTED = "#aaaaaa"
 
+SUPPORTED_FORMATS = ["mp3", "wav", "ogg", "flac", "aac"]
+
 class App:
     def __init__(self, root):
         # Creates main window -> root
@@ -39,13 +41,13 @@ class App:
 
         # Variable to store selected format
         self.selected_format = tk.StringVar(self.root)
-        self.selected_format.set("mp3")  # default value
+        self.selected_format.set(SUPPORTED_FORMATS[0])  # default value
 
         #create dropdown menu
         self.format_menu = tk.OptionMenu(
             self.root,
             self.selected_format,
-            "mp3", "wav", "ogg"
+            *SUPPORTED_FORMATS
         )
 
         self.format_menu.config(             
