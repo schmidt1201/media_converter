@@ -13,13 +13,24 @@ class App:
     def __init__(self, root):
         # Creates main window -> root
         self.root = root
-        self.root.title("Media Converter") # Sets window title
-        self.root.geometry("500x300") # Width x Height
+        self.root.title("Media Converter")
+        self.root.geometry("500x300")
         self.root.configure(bg=BG_COLOR)
         self.file_path = None
 
         # Drop area label 
-        self.drop_label = tk.Label(self.root, text="Drag & drop desired file here.", width=40, height=5, relief="ridge", bg=PANEL_COLOR, fg=MUTED, font=("Segoe UI", 11), highlightbackground="#2a2a2a", highlightthickness=1) # adds text, size and border
+        self.drop_label = tk.Label(
+            self.root, 
+            text="Drag & drop desired file here.", 
+            width=40, 
+            height=5, 
+            relief="ridge", 
+            bg=PANEL_COLOR, 
+            fg=MUTED, 
+            font=("Segoe UI", 11), 
+            highlightbackground="#2a2a2a", 
+            highlightthickness=1
+        )
         self.drop_label.pack(pady=50)
 
         # Make drop_label accept dropped files
@@ -54,11 +65,23 @@ class App:
         self.format_menu.pack(pady=10)
 
         # Add convert button
-        self.convert_button = tk.Button(self.root, text="Convert", command=self.convert_file, bg=ACCENT, fg="white", activebackground="#4338ca", activeforeground="white", relief="flat", font=("Segoe UI", 10, "bold"), padx=20, pady=6)        
+        self.convert_button = tk.Button(
+            self.root,
+            text="Convert", 
+            command=self.convert_file, 
+            bg=ACCENT, 
+            fg="white", 
+            activebackground="#4338ca", 
+            activeforeground="white", 
+            relief="flat", 
+            font=("Segoe UI", 10, "bold"), 
+            padx=20, 
+            pady=6
+        )        
         self.convert_button.pack(pady=10)
 
     def handle_drop(self, event):
-        # remove curly braces and extra spaces
+        # Remove curly braces added by tkinterdnd2 on Windows paths
         path = event.data.strip().strip("{}")
 
         # convert to proper os path
@@ -82,7 +105,7 @@ class App:
 
         # Call ffmpeg
         subprocess.run([
-            "ffmpeg/bin/ffmpeg.exe",
+            "ffmpeg",
             "-y",                   # Overwrite if exists
             "-i", self.file_path,   # input
             output_file             # output
